@@ -10,8 +10,16 @@ function Square(props) {
 }
 
 function Board() {
-  const status = 'Next player: X';
   const [squares, setSquares] = useState(new Array(9).fill(null));
+  const [xIsNext, setXisNext] = useState(true);
+  let status;
+  const winner = calculateWinner(squares);
+  if(winner) {
+    status = 'Winner: ' + winner;
+  } else {
+    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+  }
+
   const renderSquare = (i) => {
     return (
       <Square
@@ -20,12 +28,36 @@ function Board() {
       />
     );
   };
-  const handleClick = (i) => {
-    console.log('click:' + i);
 
+  const handleClick = (i) => {
     const tempSquares = squares.slice(); // 数组拷贝
-    tempSquares[i] = 'X';
-    setSquares(tempSquares)
+    if (calculateWinner(tempSquares) || tempSquares[i]) {
+      return;
+    }
+    
+    tempSquares[i] = xIsNext ? 'X' : 'O';
+    setSquares(tempSquares);
+    setXisNext(!xIsNext);
+  }
+
+  function calculateWinner(squares) {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+    return null;
   }
 
   return (
