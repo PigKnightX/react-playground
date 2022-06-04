@@ -47,14 +47,32 @@ function TicTacToe() {
   }];
   const [history, setHistory] = useState(historyInit);
   const [xIsNext, setXisNext] = useState(true);
+  const [stepNumber, setStepNumber] = useState(0);
 
-  const current = history[history.length - 1];
+  const current = history[stepNumber];
   const winner = calculateWinner(current.squares);
+
+  const moves = history.map((step, move) => {
+    const desc = move ?
+        'Go to move #' + move :
+        'Go to game start';
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{desc}</button>
+      </li>
+    );
+  })
+
   let status;
   if (winner) {
     status = 'Winner: ' + winner;
   } else {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+  }
+
+  function jumpTo(step) {
+    setStepNumber(step);
+    setXisNext((step % 2) === 0);
   }
 
   function calculateWinner(squares) {
@@ -78,15 +96,18 @@ function TicTacToe() {
   }
 
   function handleClick(i) {
-    const current = history[history.length - 1];
+    const historyCopy = history.slice(0, stepNumber + 1);
+    const current = historyCopy[historyCopy.length - 1];
+    
     const squares = current.squares.slice();
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
     squares[i] = xIsNext ? 'X' : 'O';
-    const newHistory = history.concat([{squares: squares}]);
+    const newHistory = historyCopy.concat([{squares: squares}]);
     setHistory(newHistory);
     setXisNext(!xIsNext);
+    setStepNumber(history.length)
   }
 
   return (
@@ -99,7 +120,7 @@ function TicTacToe() {
       </div>
       <div className="game-info">
         <div>{status}</div>
-        {/* <ol>TODO</ol> */}
+        <ol>{moves}</ol>
       </div>
     </div>
   );
