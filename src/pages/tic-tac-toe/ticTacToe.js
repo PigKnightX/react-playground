@@ -9,35 +9,52 @@ function Square(props) {
   );
 }
 
-function Board() {
-  const [squares, setSquares] = useState(new Array(9).fill(null));
-  const [xIsNext, setXisNext] = useState(true);
-  let status;
-  const winner = calculateWinner(squares);
-  if(winner) {
-    status = 'Winner: ' + winner;
-  } else {
-    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
-  }
-
+function Board(props) {
   const renderSquare = (i) => {
     return (
       <Square
-        value={squares[i]}
-        onClick={() => {handleClick(i)}}
+        value={props.squares[i]}
+        onClick={() => props.onClick(i)}
       />
     );
   };
 
-  const handleClick = (i) => {
-    const tempSquares = squares.slice(); // 数组拷贝
-    if (calculateWinner(tempSquares) || tempSquares[i]) {
-      return;
-    }
-    
-    tempSquares[i] = xIsNext ? 'X' : 'O';
-    setSquares(tempSquares);
-    setXisNext(!xIsNext);
+  return (
+    <div>
+      {/* <div className="status">{props.status}</div> */}
+      <div className="board-row">
+        {renderSquare(0)}
+        {renderSquare(1)}
+        {renderSquare(2)}
+      </div>
+      <div className="board-row">
+        {renderSquare(3)}
+        {renderSquare(4)}
+        {renderSquare(5)}
+      </div>
+      <div className="board-row">
+        {renderSquare(6)}
+        {renderSquare(7)}
+        {renderSquare(8)}
+      </div>
+    </div>
+  );
+}
+
+function TicTacToe() {
+  const historyInit = [{
+    squares: Array(9).fill(null)
+  }];
+  const [history, setHistory] = useState(historyInit);
+  const [xIsNext, setXisNext] = useState(true);
+
+  const current = history[history.length - 1];
+  const winner = calculateWinner(current.squares);
+  let status;
+  if (winner) {
+    status = 'Winner: ' + winner;
+  } else {
+    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
   function calculateWinner(squares) {
@@ -60,36 +77,28 @@ function Board() {
     return null;
   }
 
-  return (
-    <div>
-      <div className="status">{status}</div>
-      <div className="board-row">
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
-      </div>
-      <div className="board-row">
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
-      </div>
-      <div className="board-row">
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
-    </div>
-  );
-}
+  function handleClick(i) {
+    const current = history[history.length - 1];
+    const squares = current.squares.slice();
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
+    squares[i] = xIsNext ? 'X' : 'O';
+    const newHistory = history.concat([{squares: squares}]);
+    setHistory(newHistory);
+    setXisNext(!xIsNext);
+  }
 
-function TicTacToe() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board />
+        <Board 
+          squares={current.squares}
+          onClick={(i) => handleClick(i)}
+        />
       </div>
       <div className="game-info">
-        {/* <div>{status}</div> */}
+        <div>{status}</div>
         {/* <ol>TODO</ol> */}
       </div>
     </div>
